@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kelp Monitor</title>
+</head>
+
+<body>
+  <h1>CPU</h1>
+  <div id="cpu"></div>
+  <h1>Memory</h1>
+  <div id="memory"></div>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.17/c3.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.17/c3.min.js"></script>
+
+</body>
+<script>
+  var chartCPU, chartMemory;
+  function refreshCPU(columns) {
+    if (chartCPU) {
+      chartCPU.flow({ columns, length: 0 });
+    } else {
+      chartCPU = c3.generate({
+        type: 'line',
+        bindto: '#cpu',
+        data: { columns },
+        point: { show: false },
+        axis: {
+          x: { show: false },
+          y: { tick: { format: d3.format('0,000') } }
+        },
+      });
+    }
+  }
+  function refreshMemory(columns) {
+    if (chartMemory) {
+      chartMemory.flow({ columns, length: 0 });
+    } else {
+      chartMemory = c3.generate({
+        type: 'line',
+        bindto: '#memory',
+        data: { columns },
+        point: { show: false },
+        axis: {
+          x: { show: false },
+          y: { tick: { format: d3.format('0,000') } }
+        },
+      });
+    }
+  }
+  var es = new EventSource('/usage');
+  es.onerror = function (e) {
+    var el = document.getElementById('memory');
+    el.innerHTML = '<code></code>';
+  };
+  es.onmessage = function (e) {
+    const { cpu, memory } = JSON.parse(e.data);
+    refreshCPU(Object.keys(cpu).map(key => {
+      return [key, cpu[key]];
+    }));
+    refreshMemory(Object.keys(memory).map(key => {
+      return [key, memory[key]];
+    }));
+  };
+</script>
+
+</html>
