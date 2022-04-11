@@ -1,9 +1,10 @@
 const fs = require('fs');
 const http = require('http');
 const EventSource = require('server-send-events');
+const pkg = require('./package.json');
 
 const send = res =>
-  fs.createReadStream('./monitor.html').pipe(res);
+  fs.createReadStream(__dirname + '/monitor.html').pipe(res);
 
 const es = new EventSource();
 const server = http.createServer((req, res) => {
@@ -17,7 +18,7 @@ const server = http.createServer((req, res) => {
 
 const { KELP_MONITOR_PORT: port = 59757 } = process.env;
 server.listen(port, () => {
-  console.log(`Monitor listening on port ${port}`);
+  console.log(`[${pkg.name}@${pkg.version}] listening on port http://localhost:${port}`);
 
   setInterval(() => {
     es.send({
