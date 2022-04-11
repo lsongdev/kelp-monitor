@@ -2,6 +2,8 @@
 
 > Simple Node.js Application Performance Monitoring
 
+![](./screenshot.png)
+
 ### Install
 
 ```sh
