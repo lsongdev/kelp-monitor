@@ -1,6 +1,7 @@
 const fs = require('fs');
 const http = require('http');
 const EventSource = require('server-send-events');
+const CpuCollector = require('./cpu');
 const pkg = require('./package.json');
 
 const send = res =>
@@ -20,9 +21,11 @@ const { KELP_MONITOR_PORT: port = 59757 } = process.env;
 server.listen(port, () => {
   console.log(`[${pkg.name}@${pkg.version}] listening on port http://localhost:${port}`);
 
+  const cpuInspector = new CpuCollector();
+
   setInterval(() => {
     es.send({
-      cpu: process.cpuUsage(),
+      cpu: cpuInspector.ratio(),
       memory: process.memoryUsage(),
     });
   }, 2000);
